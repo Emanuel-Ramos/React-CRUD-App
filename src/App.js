@@ -1,84 +1,94 @@
-import React, {useState} from 'react';
-import './index.css';
-import Books from './Components/Books';
-import Addbook from './Components/Addbook';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import EditBook from './Components/Editbook';
+import React, { useEffect, useState } from "react";
+import "./index.css";
+import Restaurants from "./Components/Restaurants";
+import AddRestaurant from "./Components/AddRestaurant";
+import "bootstrap/dist/css/bootstrap.min.css";
+import EditRestaurant from "./Components/EditRestaurant";
+import axios from "axios";
 
 function App() {
-
   // setting initial states
-  const bookData = [
-    { id: 1, name: 'Book 1', author: 'Author1', year: '1989'},
-    { id: 2, name: 'Book 2', author: 'Author 2', year: '2000'},
-    { id: 2, name: 'Book 3', author: 'Author 3', year: '2020'}
-  ]
-  const formState = {id:null, name:'', author:'', year:''}
-  const [books, setBooks] = useState(bookData);
+
+  const [restaurantData, setRestaurantData] = useState([]);
+  const formState = { id: null, name: "", author: "", year: "" };
+  const [restaurants, setRestaurants] = useState(restaurantData);
   const [edit, setEdit] = useState(false);
-  const [currentBook, setCurrentBook] = useState(formState);
+  const [currentRestaurant, setCurrentRestaurant] = useState(formState);
 
   // CRUD OPERATIONS
-  // CREATE A BOOK
-  const addBook = book => {
-    book.id = books.length + 1;
-    setBooks([...books, book]);
-  }
+  // CREATE A restaurant
+  const addRestaurant = (restaurant) => {
+    restaurant.id = restaurants.length + 1;
+    setRestaurants([...restaurants, restaurant]);
+  };
 
-  // EDIT A BOOK
-  const editBook = book => {
-    setEdit(true)
-    setCurrentBook({ id:book.id, name:book.name, author:book.author, year:book.year })
-  }
-  // UPDATE A BOOK
-  const updateBook = (id, updatedBook) => {
-    setEdit(false)
-    setBooks(books.map(book => (book.id === id ? updatedBook : book )))
-  }
-  // REMOVE A BOOK
-  const deleteBook = id => {
+  // EDIT A restaurant
+  const editRestaurant = (restaurant) => {
+    setEdit(true);
+    setCurrentRestaurant({
+      id: restaurant.id,
+      name: restaurant.name,
+      description: restaurant.description,
+      rating: restaurant.rating,
+      visited: restaurant.visited,
+    });
+  };
+  // UPDATE A restaurant
+  const updateRestaurant = (id, updatedRestaurant) => {
     setEdit(false);
-    setBooks(books.filter(book => book.id !== id))
-  }
-
-
-
+    setRestaurants(
+      restaurants.map((restaurant) =>
+        restaurant.id === id ? updatedRestaurant : restaurant
+      )
+    );
+  };
+  // REMOVE A restaurant
+  const deleteRestaurant = (id) => {
+    setEdit(false);
+    setRestaurants(restaurants.filter((restaurant) => restaurant.id !== id));
+  };
+  useEffect(() => {
+    axios
+      .get(
+        "https://restaurants-service-heroku.herokuapp.com/api/restaurants/lista"
+      )
+      .then((response) => console.log(response))
+      .catch((error) => console.log(error));
+  }, []);
   return (
     <div className="container">
       <div className="header">
-        <h1>LIBRARY APP WITH REACT JS</h1>
-        <br/>
-        <br/>
+        <h1>TOP 10 RESTAURANTES DO ZAP</h1>
+        <br />
+        <br />
       </div>
       <div className="row library">
-      <div className="col-sm-6 add-book">
-        {edit ? (
-          <div>
-              <h2>Edit Book</h2>
-              <EditBook 
+        <div className="col-sm-6 add-restaurant">
+          {edit ? (
+            <div>
+              <h2>Edit restaurant</h2>
+              <EditRestaurant
                 edit={edit}
                 setEdit={setEdit}
-                currentBook={currentBook}
-                updateBook={updateBook}
+                currentRestaurant={currentRestaurant}
+                updaterestaurant={updateRestaurant}
               />
-          </div>
-        ) : (
-          <div>
-            <h1>Add A Book</h1>
-              <Addbook
-                addBook={addBook}
-            />
-          </div>
-        )}
-      </div>
-      <div className="col-md-6">
-        <h1>Available Books</h1>
-          <Books
-            books={books}
-            editBook={editBook}
-            deleteBook={deleteBook}
+            </div>
+          ) : (
+            <div>
+              <h1>Adicionar restaurante</h1>
+              <AddRestaurant addRestaurant={addRestaurant} />
+            </div>
+          )}
+        </div>
+        <div className="col-md-6">
+          <h1>Available restaurants</h1>
+          <Restaurants
+            restaurants={restaurants}
+            editRestaurant={editRestaurant}
+            deleteRestaurant={deleteRestaurant}
           />
-      </div>
+        </div>
       </div>
     </div>
   );
